@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+
+{% from "macros/svgs.jinja2" import star, pencil %}
+
+{% extends "layout.html" %}
+
+{%- block head_content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/song_details.css') }}" />
+{% endblock %}
+
+{% block main_content %}
+<div class="container">
+    <header class="song__header">
+        <div class="header__row">
+            <div class="song__name">
+                <h1>{{ song.title }}</h1>
+                <div class="song__rating"> 
+                    {% for i in range(5) %} 
+                    {% set order = ((5 - i) | string) %}
+                        <a class="rating__link star--filled {{ 'rating__link' + order }} {{ (' star--notfilled ' if song.rating < (5 - i) else '') }}" href="{{ url_for('pages.rate_song', _id=song._id, rating=5-i) }}">
+                            {{ star("star") }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="song__played">
+                {% if song.last_played %}
+                    <p>
+                        Last played: <a href="{{ url_for('pages.play_today', _id=song._id) }}" class="played__link">
+                            <time datetime="{{ song.last_played }}">{{song.last_played.strftime("%d %b %Y")}}</time>
+                        </a>
+                    </p>
+                {% else %}
+                    <p><a href="{{ url_for('pages.play_today', _id=song._id) }}" class="played__link">Not played yet</a></p>
+                {% endif %}
+                <a class="song__edit" href="{{ url_for('pages.edit_song', _id=song._id) }}">Edit {{ pencil("pencil") }}</a>
+            </div>
+        </div>
+        <div class="header__row">
+            <ul class="song__tags">
+            {% for tag in song.tags %}
+                <li class="song__tag">{{ tag }}</li>
+            {% endfor %}
+            </ul>
+        </div>
+    </header>
+    {% if song.video_link %}
+    <iframe
+        class="song__video"
+        src="{{ song.video_link }}"
+        title="YouTube video player"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen>
+    </iframe>
+    {% endif %}
+
+    {% if song.description %}
+        <p class="song__description">{{ song.description }}</p>
+    {% else %}
+        <p class="song__description">No description yet. <a class="link" href="{{ url_for('pages.edit_song', _id=song._id) }}">Add one?</a></p>
+    {% endif %}
+    
+</div>
+{% endblock %}

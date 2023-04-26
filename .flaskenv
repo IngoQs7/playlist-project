@@ -1,0 +1,2 @@
+FLASK_APP=song_library
+FLASK_DEBUG=True

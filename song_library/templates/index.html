@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+{% extends "layout.html" %}
+
+{% block head_content %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/songs.css') }}" />
+{% endblock %}
+
+{% block main_content %}
+
+    {%- if songs_data %}
+        <table class="table">
+            <colgroup>
+                <col style="width: 40%">
+                <col style="width: 22.5%">
+                <col style="width: 22.5%">
+                <col style="width: 15%">
+            </colgroup>
+            <thead>
+                <tr class="table__header">
+                    <th class="table__cell table__cell--header">Title</th>
+                    <th class="table__cell table__cell--header">Album</th>
+                    <th class="table__cell table__cell--header">Date Added</th>
+                    <th class="table__cell table__cell--header"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for song in songs_data %}
+                    <tr>
+                        <td class="table__cell">
+                            <p class="table__songTitle">{{ song.title }}</p>
+                            <p class="table__songBand"> By {{ song.band }} </p>
+                        </td>
+                        <td class="table__cell table__cell--light-text">{{ song.album }}</td>
+                        {% if song.date_added %}
+                        <td class="table__cell table__cell--light-text">{{ datetime_formatting(song) }}</td>
+                        {% else %}
+                        <td class="table__cell"></td>
+                        {% endif %}
+                        <td class="table__cell">
+                            <a href="{{ url_for('pages.song', _id=song._id) }}" class="table__link">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+    {% else %}
+        <p class="table__empty">
+            You haven't added any songs yet.
+            <a href="{{ url_for('pages.add_song') }}" class="link">Add one!</a>
+        </p>
+    {% endif %}
+
+    <a href="{{ url_for('pages.add_song') }}" class="button button--add">
+        <span>+</span>
+    </a>
+
+{% endblock %}
