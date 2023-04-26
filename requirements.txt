@@ -1,3 +1,4 @@
+python==3.11.2
 Babel==2.12.1
 black==23.3.0
 blinker==1.6.2
