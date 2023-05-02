@@ -60,7 +60,6 @@ body {
   display: flex;
   flex-direction: column;
 
-  /* Setsthe shared font characteristics, so that that they can be inherited globally */
   font-family: "Public Sans", sans-serif;
   color: var(--text-dark);
   line-height: 1.45;
