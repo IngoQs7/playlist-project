@@ -10,8 +10,6 @@ import datetime
 from dataclasses import asdict
 
 from flask import (
-    Blueprint,
-    current_app,
     flash,
     redirect,
     render_template,
@@ -73,12 +71,12 @@ def datetime_formatting(song):
 @app.route("/")
 @login_required
 def index():
-    user_data = current_app.db.user.find_one({"email": session["email"]})
+    user_data = app.db.user.find_one({"email": session["email"]})
     if not user_data:
         return redirect(url_for(".logout"))
 
     user = User(**user_data)
-    song_data = current_app.db.song.find({"_id": {"$in": user.songs}})
+    song_data = app.db.song.find({"_id": {"$in": user.songs}})
     songs = [Song(**song) for song in song_data]
 
     return render_template(
@@ -102,7 +100,7 @@ def register():
             password=pbkdf2_sha256.hash(form.password.data), 
         )                                                     
 
-        current_app.db.user.insert_one(asdict(user))
+        app.db.user.insert_one(asdict(user))
 
         flash("User registered successfully", "success")
         return redirect(url_for("login"))
@@ -119,7 +117,7 @@ def login():
 
     form = LoginForm()
     if request.args.get('d') == 'demo':
-        user_data = current_app.db.user.find_one({"email": "test@example.com"})
+        user_data = app.db.user.find_one({"email": "test@example.com"})
         user = User(**user_data)
         session["user_id"] = user._id
         session["email"] = user.email
@@ -128,7 +126,7 @@ def login():
 
     if form.validate_on_submit():
         
-        user_data = current_app.db.user.find_one({"email": form.email.data})
+        user_data = app.db.user.find_one({"email": form.email.data})
 
         if not user_data:
             flash("Login credentials not correct", category="danger")
@@ -168,8 +166,8 @@ def add_song():
             date_added=datetime.datetime.today()
         )
 
-        current_app.db.song.insert_one(asdict(song))
-        current_app.db.user.update_one(
+        app.db.song.insert_one(asdict(song))
+        app.db.user.update_one(
             {"_id": session["user_id"]}, {"$push": {"songs": song._id}}
         )
 
@@ -182,14 +180,14 @@ def add_song():
 
 @app.get("/song/<string:_id>")
 def song(_id: str):
-    song = Song(**current_app.db.song.find_one({"_id": _id}))
+    song = Song(**app.db.song.find_one({"_id": _id}))
     return render_template("song_details.html", song=song)
 
 
 @app.route("/edit/<string:_id>", methods=["GET", "POST"])
 @login_required
 def edit_song(_id: str):
-    song = Song(**current_app.db.song.find_one({"_id": _id}))
+    song = Song(**app.db.song.find_one({"_id": _id}))
     form = ExtendedSongForm(obj=song) 
 
     if form.validate_on_submit():
@@ -201,7 +199,7 @@ def edit_song(_id: str):
         song.description = form.description.data
         song.video_link = form.video_link.data
 
-        current_app.db.song.update_one({"_id": song._id}, {"$set": asdict(song)})
+        app.db.song.update_one({"_id": song._id}, {"$set": asdict(song)})
         return redirect(url_for(".song", _id=song._id))
     return render_template("song_form.html", song=song, form=form)
 
@@ -210,7 +208,7 @@ def edit_song(_id: str):
 @login_required
 def play_today(_id):
     
-    current_app.db.song.update_one(
+    app.db.song.update_one(
         {"_id": _id}, {"$set": {"last_played": datetime.datetime.today()}}
     )
 
@@ -222,7 +220,7 @@ def play_today(_id):
 def rate_song(_id):
     
     rating = int(request.args.get("rating"))
-    current_app.db.song.update_one({"_id": _id}, {"$set": {"rating": rating}})
+    app.db.song.update_one({"_id": _id}, {"$set": {"rating": rating}})
 
     return redirect(url_for(".song", _id=_id))
 
