@@ -17,7 +17,7 @@
                 <div class="song__rating"> 
                     {% for i in range(5) %} 
                     {% set order = ((5 - i) | string) %}
-                        <a class="rating__link star--filled {{ 'rating__link' + order }} {{ (' star--notfilled ' if song.rating < (5 - i) else '') }}" href="{{ url_for('pages.rate_song', _id=song._id, rating=5-i) }}">
+                        <a class="rating__link star--filled {{ 'rating__link' + order }} {{ (' star--notfilled ' if song.rating < (5 - i) else '') }}" href="{{ url_for('rate_song', _id=song._id, rating=5-i) }}">
                             {{ star("star") }}
                         </a>
                     {% endfor %}
@@ -26,14 +26,14 @@
             <div class="song__played">
                 {% if song.last_played %}
                     <p>
-                        Last played: <a href="{{ url_for('pages.play_today', _id=song._id) }}" class="played__link">
+                        Last played: <a href="{{ url_for('play_today', _id=song._id) }}" class="played__link">
                             <time datetime="{{ song.last_played }}">{{song.last_played.strftime("%d %b %Y")}}</time>
                         </a>
                     </p>
                 {% else %}
-                    <p><a href="{{ url_for('pages.play_today', _id=song._id) }}" class="played__link">Not played yet</a></p>
+                    <p><a href="{{ url_for('play_today', _id=song._id) }}" class="played__link">Not played yet</a></p>
                 {% endif %}
-                <a class="song__edit" href="{{ url_for('pages.edit_song', _id=song._id) }}">Edit {{ pencil("pencil") }}</a>
+                <a class="song__edit" href="{{ url_for('edit_song', _id=song._id) }}">Edit {{ pencil("pencil") }}</a>
             </div>
         </div>
         <div class="header__row">
@@ -58,7 +58,7 @@
     {% if song.description %}
         <p class="song__description">{{ song.description }}</p>
     {% else %}
-        <p class="song__description">No description yet. <a class="link" href="{{ url_for('pages.edit_song', _id=song._id) }}">Add one?</a></p>
+        <p class="song__description">No description yet. <a class="link" href="{{ url_for('edit_song', _id=song._id) }}">Add one?</a></p>
     {% endif %}
     
 </div>

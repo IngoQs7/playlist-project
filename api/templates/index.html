@@ -37,7 +37,7 @@
                         <td class="table__cell"></td>
                         {% endif %}
                         <td class="table__cell">
-                            <a href="{{ url_for('pages.song', _id=song._id) }}" class="table__link">
+                            <a href="{{ url_for('song', _id=song._id) }}" class="table__link">
                                 View
                             </a>
                         </td>
@@ -49,11 +49,11 @@
     {% else %}
         <p class="table__empty">
             You haven't added any songs yet.
-            <a href="{{ url_for('pages.add_song') }}" class="link">Add one!</a>
+            <a href="{{ url_for('add_song') }}" class="link">Add one!</a>
         </p>
     {% endif %}
 
-    <a href="{{ url_for('pages.add_song') }}" class="button button--add">
+    <a href="{{ url_for('add_song') }}" class="button button--add">
         <span>+</span>
     </a>
 

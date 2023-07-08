@@ -1,3 +1,8 @@
+import os
+from flask import Flask
+from dotenv import load_dotenv
+from pymongo import MongoClient
+
 import functools
 import uuid
 import re
@@ -14,14 +19,19 @@ from flask import (
     url_for,
     request,
 )
-from song_library.forms import LoginForm, RegisterForm, SongForm, ExtendedSongForm
-from song_library.models import User, Song
+from api.forms import LoginForm, RegisterForm, SongForm, ExtendedSongForm
+from api.models import User, Song
 from passlib.hash import pbkdf2_sha256
 
+load_dotenv()
 
-pages = Blueprint(
-    "pages", __name__, template_folder="templates", static_folder="static"
-)
+app = Flask(__name__)
+app.config["MONGODB_URI"] = os.environ.get("MONGODB_URI")
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
+app.db = MongoClient(app.config["MONGODB_URI"]).get_default_database()
+app.register_blueprint(app)
+
+
 
 def login_required(route):
     @functools.wraps(route)
@@ -62,7 +72,7 @@ def datetime_formatting(song):
     return time_ago
 
     
-@pages.route("/")
+@app.route("/")
 @login_required
 def index():
     user_data = current_app.db.user.find_one({"email": session["email"]})
@@ -81,7 +91,7 @@ def index():
     )
 
 
-@pages.route("/register", methods=["POST", "GET"])
+@app.route("/register", methods=["POST", "GET"])
 def register():
     if session.get("email"):
         return redirect(url_for(".index"))
@@ -104,7 +114,7 @@ def register():
     )
 
 
-@pages.route("/login", methods=["GET", "POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
     if session.get("email"):
         return redirect(url_for(".index"))
@@ -130,7 +140,7 @@ def login():
     return render_template("login.html", title="Songs Playlist - Login", form=form)
 
 
-@pages.route("/logout")
+@app.route("/logout")
 def logout():
     del session["email"]
     del session["user_id"]
@@ -138,7 +148,7 @@ def logout():
     return redirect(url_for(".login"))
 
 
-@pages.route("/add", methods=["GET", "POST"])
+@app.route("/add", methods=["GET", "POST"])
 @login_required
 def add_song():
     form = SongForm()
@@ -163,14 +173,14 @@ def add_song():
     )
 
 
-@pages.get("/song/<string:_id>")
+
+@app.get("/song/<string:_id>")
 def song(_id: str):
-    
     song = Song(**current_app.db.song.find_one({"_id": _id}))
     return render_template("song_details.html", song=song)
 
 
-@pages.route("/edit/<string:_id>", methods=["GET", "POST"])
+@app.route("/edit/<string:_id>", methods=["GET", "POST"])
 @login_required
 def edit_song(_id: str):
     song = Song(**current_app.db.song.find_one({"_id": _id}))
@@ -190,7 +200,7 @@ def edit_song(_id: str):
     return render_template("song_form.html", song=song, form=form)
 
 
-@pages.get("/song/<string:_id>/play")
+@app.get("/song/<string:_id>/play")
 @login_required
 def play_today(_id):
     
@@ -201,7 +211,7 @@ def play_today(_id):
     return redirect(url_for(".song", _id=_id))
 
 
-@pages.get("/song/<string:_id>/rate")
+@app.get("/song/<string:_id>/rate")
 @login_required
 def rate_song(_id):
     
@@ -211,7 +221,7 @@ def rate_song(_id):
     return redirect(url_for(".song", _id=_id))
 
 
-@pages.get("/toggle-theme")
+@app.get("/toggle-theme")
 def toggle_theme():
     current_theme = session.get("theme")
 

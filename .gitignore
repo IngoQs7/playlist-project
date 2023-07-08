@@ -1,1 +1,4 @@
 song_library/.env
+.vercel
+.venv
+.env
