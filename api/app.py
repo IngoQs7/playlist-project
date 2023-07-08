@@ -117,10 +117,6 @@ def login():
     if session.get("email"):
         return redirect(url_for(".index"))
 
-    # if request.args.get('d') == 'demo':
-    #     form.email = "test@example.com"
-    #     form.password = "test"
-
     form = LoginForm()
     if form.validate_on_submit():
         
