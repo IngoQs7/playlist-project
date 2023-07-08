@@ -35,7 +35,7 @@ def login_required(route):
     @functools.wraps(route)
     def route_wrapper(*args, **kwargs):
         if session.get("email") is None:
-            return redirect(url_for(".login"))
+            return redirect(url_for("login"))
 
         return route(*args, **kwargs)
 
@@ -92,7 +92,7 @@ def index():
 @app.route("/register", methods=["POST", "GET"])
 def register():
     if session.get("email"):
-        return redirect(url_for(".index"))
+        return redirect(url_for("index"))
     
     form = RegisterForm()
     if form.validate_on_submit():
@@ -105,7 +105,7 @@ def register():
         current_app.db.user.insert_one(asdict(user))
 
         flash("User registered successfully", "success")
-        return redirect(url_for(".login"))
+        return redirect(url_for("login"))
 
     return render_template(
         "register.html", title="Songs Playlist - Register", form=form
@@ -115,7 +115,7 @@ def register():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if session.get("email"):
-        return redirect(url_for(".index"))
+        return redirect(url_for("index"))
 
     form = LoginForm()
     if request.args.get('d') == 'demo':
@@ -124,7 +124,7 @@ def login():
         session["user_id"] = user._id
         session["email"] = user.email
 
-        return redirect(url_for(".index"))
+        return redirect(url_for("index"))
 
     if form.validate_on_submit():
         
@@ -132,14 +132,14 @@ def login():
 
         if not user_data:
             flash("Login credentials not correct", category="danger")
-            return redirect(url_for(".login"))
+            return redirect(url_for("login"))
 
         user = User(**user_data)
         if user and pbkdf2_sha256.verify(form.password.data, user.password):
             session["user_id"] = user._id
             session["email"] = user.email
 
-            return redirect(url_for(".index"))
+            return redirect(url_for("index"))
 
         flash("Login credentials not correct", category="danger")
         
@@ -151,7 +151,7 @@ def logout():
     del session["email"]
     del session["user_id"]
 
-    return redirect(url_for(".login"))
+    return redirect(url_for("login"))
 
 
 @app.route("/add", methods=["GET", "POST"])
