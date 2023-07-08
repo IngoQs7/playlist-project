@@ -29,8 +29,6 @@ app = Flask(__name__)
 app.config["MONGODB_URI"] = os.environ.get("MONGODB_URI")
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 app.db = MongoClient(app.config["MONGODB_URI"]).get_default_database()
-app.register_blueprint(app)
-
 
 
 def login_required(route):
@@ -231,3 +229,6 @@ def toggle_theme():
         session["theme"] = "dark"
 
     return redirect(request.args.get("current_page"))
+
+if __name__ == "__main__":
+    app.run(debug=True)
