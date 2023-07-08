@@ -117,11 +117,15 @@ def login():
     if session.get("email"):
         return redirect(url_for(".index"))
 
-    if request.args.get('d') == 'demo':
-        form.email = "test@example.com"
-        form.password = "test"
-
     form = LoginForm()
+    if request.args.get('d') == 'demo':
+        user_data = current_app.db.user.find_one({"email": "test@example.com"})
+        user = User(**user_data)
+        session["user_id"] = user._id
+        session["email"] = user.email
+
+        return redirect(url_for(".index"))
+
     if form.validate_on_submit():
         
         user_data = current_app.db.user.find_one({"email": form.email.data})
